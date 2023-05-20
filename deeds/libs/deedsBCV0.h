@@ -1,1 +1,3 @@
 void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float alpha, int levels, bool verbose);
+void deeds_fields(float *im1, float *im1b, float *warped1, float *ux, float *vx, float *wx, int m, int n, int o, float alpha, int levels, bool verbose);
+void deeds_imwarp_fields(float *im1, float *im1b, float *warped1, float *ux, float *vx, float *wx, int m, int n, int o, float alpha, int levels, bool verbose);
