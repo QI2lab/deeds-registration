@@ -93,7 +93,8 @@ def registration_fields(fixed, moving, alpha=1.6, levels=5, verbose=True):
     vy = np.zeros_like(fixed, dtype=np.float32)
     vx = np.zeros_like(fixed, dtype=np.float32)
 
-    deeds_cpp_fields(fixed, moving, moved_np, vx, vy, vz, shape, alpha, levels, verbose)
+    # the order of axes is y, x, z
+    deeds_cpp_fields(fixed, moving, moved_np, vy, vx, vz, shape, alpha, levels, verbose)
 
     vz = np.reshape(vz, shape).astype(np.float32)
     vy = np.reshape(vy, shape).astype(np.float32)
@@ -116,7 +117,8 @@ def registration_imwarp_fields(fixed, moving, alpha=1.6, levels=5, verbose=True)
     vy = np.zeros_like(fixed, dtype=np.float32)
     vx = np.zeros_like(fixed, dtype=np.float32)
 
-    deeds_cpp_imwarp_fields(fixed, moving, moved_np, vx, vy, vz, shape, alpha, levels, verbose)
+    # the order of axes is y, x, z
+    deeds_cpp_imwarp_fields(fixed, moving, moved_np, vy, vx, vz, shape, alpha, levels, verbose)
 
     moved_np = np.reshape(moved_np, shape).astype(origin_type)
     vz = np.reshape(vz, shape).astype(np.float32)
