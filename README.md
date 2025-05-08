@@ -10,12 +10,16 @@ If you use this implementation or parts of it please cite:
  IEEE Transactions on Medical Imaging 2013, Volume 32, Issue 7, July 2013, Pages 1239-1248
  http://dx.doi.org/10.1109/TMI.2013.2246577
  
- and
- 
 >"Multi-modal Multi-Atlas Segmentation using Discrete Optimisation and Self-Similarities"
  by Mattias P. Heinrich, Oskar Maier and Heinz Handels
  VISCERAL Challenge@ ISBI, Pages 27-30 2015
  http://ceur-ws.org/Vol-1390/visceralISBI15-4.pdf
+ 
+ and
+ 
+> "DEEDS Flow Field"
+  by Alexis Coullomb and Douglas Shepherd
+  10.5281/zenodo.15366235
  
 ## Installation
 ```
