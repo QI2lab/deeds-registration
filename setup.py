@@ -2,15 +2,32 @@
 import setuptools
 import numpy
 import platform
+import os
+import importlib
 
 from Cython.Build import cythonize
 from distutils.extension import Extension
 
+env_flag = os.environ.get("USE_AVX2")
+if env_flag is not None:
+    USE_AVX2 = env_flag == "1"
+else:
+    try:
+        cpuinfo = importlib.import_module("cpuinfo")
+        flags = cpuinfo.get_cpu_info().get("flags", [])
+        USE_AVX2 = "avx2" in flags
+    except Exception:
+        USE_AVX2 = False
+
 if platform.system() == 'Windows':
-    extra_compile_args = ["/Ox", "/openmp", "/arch:AVX2"]
+    extra_compile_args = ["/Ox", "/openmp"]
+    if USE_AVX2:
+        extra_compile_args.append("/arch:AVX2")
     extra_link_args = []
 else:
-    extra_compile_args = ["-O3", "-fopenmp", "-mavx2", "-msse4.2", "-std=c++11"]
+    extra_compile_args = ["-O3", "-fopenmp", "-std=c++11"]
+    if USE_AVX2:
+        extra_compile_args.extend(["-mavx2", "-msse4.2"])
     extra_link_args = ['-fopenmp']
 
 sourcefiles = ['deeds/registration.pyx', 'deeds/libs/deedsBCV0.cpp']
@@ -22,7 +39,7 @@ with open("README.md", "r", encoding='utf-8') as fh:
 
 setuptools.setup(
     name="deeds",
-    version="1.0.0",
+    version="1.0.3",
     author="Marcin Wiktorowski",
     author_email="wiktorowski211@gmail.com",
     description="Python wrapper around efficient 3D discrete deformable registration for medical images",

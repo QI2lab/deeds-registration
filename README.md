@@ -25,6 +25,14 @@ If you use this implementation or parts of it please cite:
 ```
 pip install git+https://github.com/wiktorowski211/deeds-registration
 ```
+The build automatically detects if your CPU supports AVX2 instructions and uses
+them when available. You can force or disable AVX2 usage with the `USE_AVX2`
+environment variable (set `USE_AVX2=1` to force enable or `USE_AVX2=0` to
+disable):
+
+```
+USE_AVX2=0 pip install git+https://github.com/wiktorowski211/deeds-registration
+```
 
 ## Usage
 ```
