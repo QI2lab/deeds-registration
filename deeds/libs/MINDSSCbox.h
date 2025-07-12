@@ -141,19 +141,21 @@ void distances(float *im1, float *d1, int m, int n, int o, int qs, int l)
     int dz[6] = {0, +0, +qs, +qs, +qs, +qs};
 
     imshift(im1, w1, dx[l], dy[l], dz[l], m, n, o);
+    #pragma omp simd
     for (int i = 0; i < sz1; i++)
     {
         w1[i] = (w1[i] - im1[i]) * (w1[i] - im1[i]);
     }
     boxfilter(w1, temp1, temp2, qs, m, n, o);
+    #pragma omp simd
     for (int i = 0; i < sz1; i++)
     {
         d1[i + l * sz1] = w1[i];
     }
 
-    delete temp1;
-    delete temp2;
-    delete w1;
+    delete[] temp1;
+    delete[] temp2;
+    delete[] w1;
 }
 
 //__builtin_popcountll(left[i]^right[i]); absolute hamming distances
@@ -214,6 +216,7 @@ void descriptor(uint64_t *mindq, float *im1, int m, int n, int o, int qs)
         {
             for (int i = 0; i < m; i++)
             {
+                #pragma omp simd
                 for (int l = 0; l < len2; l++)
                 {
                     if (i + sy[l] >= 0 && i + sy[l] < m && j + sx[l] >= 0 && j + sx[l] < n && k + sz[l] >= 0 && k + sz[l] < o)
@@ -227,12 +230,14 @@ void descriptor(uint64_t *mindq, float *im1, int m, int n, int o, int qs)
                 }
                 float minval = *min_element(mind1, mind1 + len2);
                 float sumnoise = 0.0f;
+                #pragma omp simd reduction(+:sumnoise)
                 for (int l = 0; l < len2; l++)
                 {
                     mind1[l] -= minval;
                     sumnoise += mind1[l];
                 }
                 float noise1 = max(sumnoise / (float)len2, 1e-6f);
+                #pragma omp simd
                 for (int l = 0; l < len2; l++)
                 {
                     mind1[l] /= noise1;
@@ -242,13 +247,11 @@ void descriptor(uint64_t *mindq, float *im1, int m, int n, int o, int qs)
 
                 for (int l = 0; l < len2; l++)
                 {
-                    // mind1[l]=exp(-mind1[l]);
                     int mind1val = 0;
                     for (int c = 0; c < val - 1; c++)
                     {
                         mind1val += compare[c] > mind1[l] ? 1 : 0;
                     }
-                    // int mind1val=min(max((int)(mind1[l]*val-0.5f),0),val-1);
                     accum += tablei[mind1val] * tabled1;
                     tabled1 *= power;
                 }
@@ -259,5 +262,5 @@ void descriptor(uint64_t *mindq, float *im1, int m, int n, int o, int qs)
 
     time2 = chrono::steady_clock::now();
     float timeMIND2 = chrono::duration_cast<chrono::duration<float>>(time2 - time1).count();
-    delete d1;
+    delete[] d1;
 }

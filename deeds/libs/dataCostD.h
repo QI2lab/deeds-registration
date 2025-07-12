@@ -158,6 +158,7 @@ void dataCostCL(uint64_t *data, uint64_t *data2, float *results, int m, int n, i
     int szp = mp * np * op;
     uint64_t *data2p = new uint64_t[szp];
 
+    #pragma omp parallel for collapse(3)
     for (int k = 0; k < op; k++)
     {
         for (int j = 0; j < np; j++)
@@ -252,7 +253,7 @@ void dataCostCL(uint64_t *data, uint64_t *data2, float *results, int m, int n, i
         }
     }
 
-    delete data2p;
+    delete[] data2p;
 
     return;
 }
@@ -270,6 +271,7 @@ void warpImageCL(float *warped, float *im1, float *im1b, float *u1, float *v1, f
 
     interp3(warped, im1, u1, v1, w1, m, n, o, m, n, o, true);
 
+    #pragma omp parallel for collapse(3) reduction(+:ssd,ssd0)
     for (int i = 0; i < m; i++)
     {
         for (int j = 0; j < n; j++)
@@ -294,6 +296,7 @@ void warpAffineS(short *warped, short *input, float *X, float *u1, float *v1, fl
     int n = image_n;
     int o = image_o;
     int sz = m * n * o;
+    #pragma omp parallel for collapse(3)
     for (int k = 0; k < o; k++)
     {
         for (int j = 0; j < n; j++)
@@ -358,6 +361,7 @@ void warpAffine(float *warped, float *input, float *im1b, float *X, float *u1, f
         }
     }
 
+    #pragma omp parallel for collapse(3) reduction(+:ssd,ssd0)
     for (int i = 0; i < m; i++)
     {
         for (int j = 0; j < n; j++)

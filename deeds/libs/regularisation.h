@@ -41,6 +41,7 @@ void messageDT(int ind, float *data, short *indout, int len1, float offsetx, flo
             valb2 = buffer + (j1 * len1 + k1 * len1 * len1);
             indb = bufferi + (j1 * len1 + k1 * len1 * len1);
             int num = (j1 * len1 + k1 * len1 * len1);
+            #pragma omp simd
             for (int i = 0; i < len1; i++)
             {
                 float minval = val[0] + z[i + len1];
@@ -68,6 +69,7 @@ void messageDT(int ind, float *data, short *indout, int len1, float offsetx, flo
             valb2 = buffer2 + (i1 + k1 * len1 * len1);
             indb = bufferi + (i1 + k1 * len1 * len1);
             indb2 = bufferi2 + (i1 + k1 * len1 * len1);
+            #pragma omp simd
             for (int i = 0; i < len1; i++)
             {
                 float minval = valb[0] + z[i + len1];
@@ -97,6 +99,7 @@ void messageDT(int ind, float *data, short *indout, int len1, float offsetx, flo
             indb = bufferi2 + (i1 + j1 * len1);
             // indb2=bufferi+(i1+j1*len1);
             indo = indout + ind * len3 + (i1 + j1 * len1);
+            #pragma omp simd
             for (int i = 0; i < len1; i++)
             {
                 float minval = valb[0] + z[i + len1];
@@ -112,11 +115,11 @@ void messageDT(int ind, float *data, short *indout, int len1, float offsetx, flo
             }
         }
     }
-    delete z;
-    delete buffer;
-    delete buffer2;
-    delete bufferi;
-    delete bufferi2;
+    delete[] z;
+    delete[] buffer;
+    delete[] buffer2;
+    delete[] bufferi;
+    delete[] bufferi2;
 }
 
 void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1, float *v1, float *w1, int hw, int step1, float quant, int *ordered, int *parents, float *edgemst)
@@ -173,7 +176,7 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
     { // cumulative sum
         startlev[i] = startlev[i - 1] + numlev[i];
     }
-    delete levels;
+    delete[] levels;
 
     int xs1, ys1, zs1, xx, yy, zz, xx2, yy2, zz2;
 
@@ -206,6 +209,7 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
         for (int i = start; i < start + length; i++)
         {
             int ochild = ordered[i];
+            #pragma omp simd
             for (int l = 0; l < len2; l++)
             {
                 costall[ochild * len2 + l] *= edgemst[ochild];
@@ -236,10 +240,10 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
             int ochild = ordered[i];
             int oparent = parents[ordered[i]];
             float minval = *min_element(costall + ochild * len2, costall + ochild * len2 + len3);
+            #pragma omp simd
             for (int l = 0; l < len2; l++)
             {
-                costall[oparent * len2 + l] += (costall[ochild * len2 + l] - minval); /// edgemst[ochild];//transp
-                // edgemst[ochild]*
+                costall[oparent * len2 + l] += (costall[ochild * len2 + l] - minval);
             }
         }
 
@@ -256,6 +260,7 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
     {
         for (int j = 0; j < len; j++)
         {
+            #pragma omp simd
             for (int k = 0; k < len; k++)
             {
                 xs[i + j * len + k * len * len] = (j - hw) * quant;
@@ -270,9 +275,10 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
     // mst-cost & select displacement for root note
     int i = 0;
     int oroot = ordered[i];
+    #pragma omp simd
     for (int l = 0; l < len2; l++)
     {
-        cost1[l] = costall[oroot * len2 + l]; // transp
+        cost1[l] = costall[oroot * len2 + l];
     }
     float value = cost1[0];
     int index = 0;
@@ -284,7 +290,7 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
             value = cost1[l];
             index = l;
         }
-        allinds[oroot * len2 + l] = l; // transp
+        allinds[oroot * len2 + l] = l;
     }
     selected[oroot] = index;
     u1[oroot] = xs[index] + u0[oroot];
@@ -292,13 +298,12 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
     w1[oroot] = zs[index] + w0[oroot];
 
     // select displacements and add to previous deformation field
+    #pragma omp simd
     for (int i = 1; i < sz; i++)
     {
         int ochild = ordered[i];
         int oparent = parents[ordered[i]];
-        // select from argmin of based on parent selection
-        // index=allinds[ochild+selected[oparent]*sz];
-        index = allinds[ochild * len2 + selected[oparent]]; // transp
+        index = allinds[ochild * len2 + selected[oparent]];
         selected[ochild] = index;
         u1[ochild] = xs[index] + u0[ochild];
         v1[ochild] = ys[index] + v0[ochild];
@@ -307,9 +312,15 @@ void regularisationCL(float *costall, float *u0, float *v0, float *w0, float *u1
 
     // cout<<"Deformation field calculated!\n";
 
-    delete cost1;
-    delete vals;
-    delete inds;
-    delete allinds;
-    delete selected;
+    delete[] xs;
+    delete[] ys;
+    delete[] zs;
+    delete[] numlev;
+    delete[] startlev;
+    delete[] processed;
+    delete[] cost1;
+    delete[] vals;
+    delete[] inds;
+    delete[] allinds;
+    delete[] selected;
 }
