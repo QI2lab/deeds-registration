@@ -269,6 +269,8 @@ void warpImageCL(float *warped, float *im1, float *im1b, float *u1, float *v1, f
     float ssd0 = 0;
     float ssd2 = 0;
 
+
+
     interp3(warped, im1, u1, v1, w1, m, n, o, m, n, o, true);
 
     #pragma omp parallel for collapse(3) reduction(+:ssd,ssd0)
@@ -332,6 +334,7 @@ void warpAffine(float *warped, float *input, float *im1b, float *X, float *u1, f
     float ssd0 = 0;
     float ssd2 = 0;
 
+    #pragma omp parallel for collapse(3)
     for (int k = 0; k < o; k++)
     {
         for (int j = 0; j < n; j++)

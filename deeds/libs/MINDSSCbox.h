@@ -8,6 +8,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
         temp1[i] = input[i];
     }
 
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int k = 0; k < o; k++)
     {
         for (int j = 0; j < n; j++)
@@ -19,6 +20,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
         }
     }
 
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int k = 0; k < o; k++)
     {
         for (int j = 0; j < n; j++)
@@ -38,6 +40,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
         }
     }
 
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int k = 0; k < o; k++)
     {
         for (int j = 1; j < n; j++)
@@ -68,6 +71,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
         }
     }
 
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int k = 1; k < o; k++)
     {
         for (int j = 0; j < n; j++)
@@ -79,6 +83,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
         }
     }
 
+    #pragma omp parallel for collapse(2) schedule(static)
     for (int j = 0; j < n; j++)
     {
         for (int i = 0; i < m; i++)
@@ -101,6 +106,7 @@ void boxfilter(float *input, float *temp1, float *temp2, int hw, int m, int n, i
 
 void imshift(float *input, float *output, int dx, int dy, int dz, int m, int n, int o)
 {
+    #pragma omp parallel for collapse(3) schedule(static)
     for (int k = 0; k < o; k++)
     {
         for (int j = 0; j < n; j++)
