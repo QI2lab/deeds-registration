@@ -4,6 +4,7 @@ import SimpleITK as sitk
 import numpy as np
 
 cimport numpy as np
+np.import_array()
 
 cdef extern from "libs/deedsBCV0.h":
     void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float alpha, int levels, bool verbose)

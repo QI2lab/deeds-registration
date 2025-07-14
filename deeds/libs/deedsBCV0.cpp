@@ -67,6 +67,7 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
     float thresholdF = -1024;
     float thresholdM = -1024;
 
+    #pragma omp simd
     for (int i = 0; i < sz; i++)
     {
         im1b[i] -= thresholdF;
@@ -102,11 +103,12 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
     float *ux = new float[sz];
     float *vx = new float[sz];
     float *wx = new float[sz];
+    #pragma omp simd
     for (int i = 0; i < sz; i++)
     {
-        ux[i] = 0.0;
-        vx[i] = 0.0;
-        wx[i] = 0.0;
+        ux[i] = 0.0f;
+        vx[i] = 0.0f;
+        wx[i] = 0.0f;
     }
     int m2 = 0, n2 = 0, o2 = 0, sz2 = 0;
     int m1 = 0, n1 = 0, o1 = 0, sz1 = 0;
@@ -121,14 +123,15 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
     float *u1i = new float[sz2];
     float *v1i = new float[sz2];
     float *w1i = new float[sz2];
+    #pragma omp simd
     for (int i = 0; i < sz2; i++)
     {
-        u1[i] = 0.0;
-        v1[i] = 0.0;
-        w1[i] = 0.0;
-        u1i[i] = 0.0;
-        v1i[i] = 0.0;
-        w1i[i] = 0.0;
+        u1[i] = 0.0f;
+        v1[i] = 0.0f;
+        w1[i] = 0.0f;
+        u1i[i] = 0.0f;
+        v1i[i] = 0.0f;
+        w1i[i] = 0.0f;
     }
 
     float *warped0 = new float[m * n * o];
@@ -272,16 +275,16 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
         o2 = o1;
         cout << "\n";
 
-        delete u0;
-        delete v0;
-        delete w0;
-        delete costall;
+        delete[] u0;
+        delete[] v0;
+        delete[] w0;
+        delete[] costall;
 
-        delete parents;
-        delete ordered;
+        delete[] parents;
+        delete[] ordered;
     }
-    delete im1_mind;
-    delete im1b_mind;
+    delete[] im1_mind;
+    delete[] im1b_mind;
     //==========================================================================================
     //==========================================================================================
 
@@ -292,6 +295,7 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
     upsampleDeformationsCL(ux, vx, wx, u1, v1, w1, m, n, o, m1, n1, o1);
 
     float *flow = new float[sz1 * 3];
+    #pragma omp simd
     for (int i = 0; i < sz1; i++)
     {
         flow[i] = u1[i];
@@ -303,6 +307,7 @@ void deeds(float *im1, float *im1b, float *warped1, int m, int n, int o, float a
     // WRITE OUTPUT DISPLACEMENT FIELD AND IMAGE
     warpAffine(warped1, im1, im1b, X, ux, vx, wx);
 
+    #pragma omp simd
     for (int i = 0; i < sz; i++)
     {
         warped1[i] += thresholdM;
@@ -386,14 +391,15 @@ void deeds_fields(float *im1, float *im1b, float *warped1, float *ux, float *vx,
     float *u1i = new float[sz2];
     float *v1i = new float[sz2];
     float *w1i = new float[sz2];
+    #pragma omp simd
     for (int i = 0; i < sz2; i++)
     {
-        u1[i] = 0.0;
-        v1[i] = 0.0;
-        w1[i] = 0.0;
-        u1i[i] = 0.0;
-        v1i[i] = 0.0;
-        w1i[i] = 0.0;
+        u1[i] = 0.0f;
+        v1[i] = 0.0f;
+        w1[i] = 0.0f;
+        u1i[i] = 0.0f;
+        v1i[i] = 0.0f;
+        w1i[i] = 0.0f;
     }
 
     float *warped0 = new float[m * n * o];
@@ -537,16 +543,16 @@ void deeds_fields(float *im1, float *im1b, float *warped1, float *ux, float *vx,
         o2 = o1;
         cout << "\n";
 
-        delete u0;
-        delete v0;
-        delete w0;
-        delete costall;
+        delete[] u0;
+        delete[] v0;
+        delete[] w0;
+        delete[] costall;
 
-        delete parents;
-        delete ordered;
+        delete[] parents;
+        delete[] ordered;
     }
-    delete im1_mind;
-    delete im1b_mind;
+    delete[] im1_mind;
+    delete[] im1b_mind;
     //==========================================================================================
     //==========================================================================================
 
@@ -557,6 +563,7 @@ void deeds_fields(float *im1, float *im1b, float *warped1, float *ux, float *vx,
     upsampleDeformationsCL(ux, vx, wx, u1, v1, w1, m, n, o, m1, n1, o1);
 
     float *flow = new float[sz1 * 3];
+    #pragma omp simd
     for (int i = 0; i < sz1; i++)
     {
         flow[i] = u1[i];
@@ -646,14 +653,15 @@ void deeds_imwarp_fields(float *im1, float *im1b, float *warped1, float *ux, flo
     float *u1i = new float[sz2];
     float *v1i = new float[sz2];
     float *w1i = new float[sz2];
+    #pragma omp simd
     for (int i = 0; i < sz2; i++)
     {
-        u1[i] = 0.0;
-        v1[i] = 0.0;
-        w1[i] = 0.0;
-        u1i[i] = 0.0;
-        v1i[i] = 0.0;
-        w1i[i] = 0.0;
+        u1[i] = 0.0f;
+        v1[i] = 0.0f;
+        w1[i] = 0.0f;
+        u1i[i] = 0.0f;
+        v1i[i] = 0.0f;
+        w1i[i] = 0.0f;
     }
 
     float *warped0 = new float[m * n * o];
@@ -797,16 +805,16 @@ void deeds_imwarp_fields(float *im1, float *im1b, float *warped1, float *ux, flo
         o2 = o1;
         cout << "\n";
 
-        delete u0;
-        delete v0;
-        delete w0;
-        delete costall;
+        delete[] u0;
+        delete[] v0;
+        delete[] w0;
+        delete[] costall;
 
-        delete parents;
-        delete ordered;
+        delete[] parents;
+        delete[] ordered;
     }
-    delete im1_mind;
-    delete im1b_mind;
+    delete[] im1_mind;
+    delete[] im1b_mind;
     //==========================================================================================
     //==========================================================================================
 
@@ -817,6 +825,7 @@ void deeds_imwarp_fields(float *im1, float *im1b, float *warped1, float *ux, flo
     upsampleDeformationsCL(ux, vx, wx, u1, v1, w1, m, n, o, m1, n1, o1);
 
     float *flow = new float[sz1 * 3];
+    #pragma omp simd
     for (int i = 0; i < sz1; i++)
     {
         flow[i] = u1[i];
@@ -828,6 +837,7 @@ void deeds_imwarp_fields(float *im1, float *im1b, float *warped1, float *ux, flo
     // WRITE OUTPUT DISPLACEMENT FIELD AND IMAGE
     warpAffine(warped1, im1, im1b, X, ux, vx, wx);
 
+    #pragma omp simd
     for (int i = 0; i < sz; i++)
     {
         warped1[i] += thresholdM;

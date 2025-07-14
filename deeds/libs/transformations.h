@@ -41,10 +41,11 @@ void filter1(float *imagein, float *imageout, int m, int n, int o, float *filter
 	int i1, j1, k1;
 	int hw = (length - 1) / 2;
 
-	for (i = 0; i < (m * n * o); i++)
-	{
-		imageout[i] = 0.0;
-	}
+        #pragma omp simd
+        for (i = 0; i < (m * n * o); i++)
+        {
+                imageout[i] = 0.0;
+        }
 
 	for (k = 0; k < o; k++)
 	{
@@ -92,8 +93,8 @@ void volfilter(float *imagein, int m, int n, int o, int length, float sigma)
 	filter1(imagein, image1, m, n, o, filter, length, 2);
 	filter1(image1, imagein, m, n, o, filter, length, 3);
 
-	delete image1;
-	delete filter;
+       delete[] image1;
+       delete[] filter;
 }
 
 float jacobian(float *u1, float *v1, float *w1, int m, int n, int o, int factor)
@@ -116,18 +117,19 @@ float jacobian(float *u1, float *v1, float *w1, int m, int n, int o, int factor)
 	float *J32 = new float[m * n * o];
 	float *J33 = new float[m * n * o];
 
-	for (i = 0; i < (m * n * o); i++)
-	{
-		J11[i] = 0.0;
-		J12[i] = 0.0;
-		J13[i] = 0.0;
-		J21[i] = 0.0;
-		J22[i] = 0.0;
-		J23[i] = 0.0;
-		J31[i] = 0.0;
-		J32[i] = 0.0;
-		J33[i] = 0.0;
-	}
+        #pragma omp simd
+        for (i = 0; i < (m * n * o); i++)
+        {
+                J11[i] = 0.0;
+                J12[i] = 0.0;
+                J13[i] = 0.0;
+                J21[i] = 0.0;
+                J22[i] = 0.0;
+                J23[i] = 0.0;
+                J31[i] = 0.0;
+                J32[i] = 0.0;
+                J33[i] = 0.0;
+        }
 
 	float neg = 0;
 	float Jmin = 1;
@@ -268,12 +270,12 @@ void consistentMappingCL(float *u, float *v, float *w, float *u2, float *v2, flo
 		w2[i] *= (float)factor;
 	}
 
-	delete us;
-	delete vs;
-	delete ws;
-	delete us2;
-	delete vs2;
-	delete ws2;
+    delete[] us;
+    delete[] vs;
+    delete[] ws;
+    delete[] us2;
+    delete[] vs2;
+    delete[] ws2;
 }
 
 void upsampleDeformationsCL(float *u1, float *v1, float *w1, float *u0, float *v0, float *w0, int m, int n, int o, int m2, int n2, int o2)
@@ -286,18 +288,19 @@ void upsampleDeformationsCL(float *u1, float *v1, float *w1, float *u0, float *v
 	float *x1 = new float[m * n * o];
 	float *y1 = new float[m * n * o];
 	float *z1 = new float[m * n * o];
-	for (int k = 0; k < o; k++)
-	{
-		for (int j = 0; j < n; j++)
-		{
-			for (int i = 0; i < m; i++)
-			{
-				x1[i + j * m + k * m * n] = j / scale_n;
-				y1[i + j * m + k * m * n] = i / scale_m;
-				z1[i + j * m + k * m * n] = k / scale_o;
-			}
-		}
-	}
+        #pragma omp parallel for collapse(3)
+        for (int k = 0; k < o; k++)
+        {
+                for (int j = 0; j < n; j++)
+                {
+                        for (int i = 0; i < m; i++)
+                        {
+                                x1[i + j * m + k * m * n] = j / scale_n;
+                                y1[i + j * m + k * m * n] = i / scale_m;
+                                z1[i + j * m + k * m * n] = k / scale_o;
+                        }
+                }
+        }
 
 	interp3(u1, u0, x1, y1, z1, m, n, o, m2, n2, o2, false);
 	interp3(v1, v0, x1, y1, z1, m, n, o, m2, n2, o2, false);

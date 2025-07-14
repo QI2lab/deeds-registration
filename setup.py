@@ -20,14 +20,14 @@ else:
         USE_AVX2 = False
 
 if platform.system() == 'Windows':
-    extra_compile_args = ["/Ox", "/openmp"]
+    extra_compile_args = ["/Ox", "/openmp", "/arch:AVX", "/fp:fast"]
     if USE_AVX2:
         extra_compile_args.append("/arch:AVX2")
     extra_link_args = []
 else:
-    extra_compile_args = ["-O3", "-fopenmp", "-std=c++11"]
+    extra_compile_args = ["-O3", "-fopenmp", "-std=c++11", "-mavx", "-msse4.2", "-ffast-math"]
     if USE_AVX2:
-        extra_compile_args.extend(["-mavx2", "-msse4.2"])
+        extra_compile_args.append("-mavx2")
     extra_link_args = ['-fopenmp']
 
 sourcefiles = ['deeds/registration.pyx', 'deeds/libs/deedsBCV0.cpp']
